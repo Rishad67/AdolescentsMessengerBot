@@ -1,21 +1,22 @@
 #!/usr/bin/python
 import re
-from query_matcher import QueryMatcher
      
 class Response(object):
 
     def __init__(self,db):
         self.db = db
-        self.query_matcher = QueryMatcher(db)
         self.default_response = "দুঃখিত, আমি আপনার কথা বুঝতে পারছি না।"
         self.subject_mapping = {"ব্রন": "ব্রণ", "ব্রণ": "ব্রণ"}
 
 
     def get_response(self,dict):
         if 'text' in dict.keys():
-            response = self.query_matcher.get_response(text=dict['text'])
-            if response:
-                return response
+            statements = self.db.get_statement(tag_names=['সাধারণ'])
+            if statements:
+                for statement in statements:
+                    db_text = statement[2].replace('\n',"")
+                    if(db_text == dict['text']):
+                        return statement[1]
 
         if 'subject' not in dict.keys() or 'intent' not in dict.keys():
             return self.default_response
